@@ -1,9 +1,22 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-SCRIPT_ROOT=$(dirname "${BASH_SOURCE[0]}")
+set -o errexit
+set -o nounset
+set -o pipefail
 
-vendor/k8s.io/code-generator/generate-groups.sh all \
-github.com/sabbir-hossain70/crd/pkg/client \
-github.com/sabbir-hossain70/crd/pkg/apis \
-crd.com:v1 \
---go-header-file "${SCRIPT_ROOT}"/hack/boilerplate.go.txt
+SCRIPT_ROOT=$(dirname "${BASH_SOURCE[0]}")/..
+CODEGEN_PKG=${CODEGEN_PKG:-$(cd "${SCRIPT_ROOT}"; ls -d -1 ./vendor/k8s.io/code-generator 2>/dev/null || echo ../code-generator)}
+
+source "${CODEGEN_PKG}/kube_codegen.sh"
+THIS_PKG="github.com/sabbir-hossain70/crd"
+echo ${SCRIPT_ROOT}
+kube::codegen::gen_helpers \
+    --boilerplate "${SCRIPT_ROOT}/hack/boilerplate.go.txt" \
+    "${SCRIPT_ROOT}/pkg/apis"
+
+kube::codegen::gen_client \
+    --with-watch \
+    --output-dir "${SCRIPT_ROOT}/pkg/generated" \
+    --output-pkg "${THIS_PKG}/pkg/generated" \
+    --boilerplate "${SCRIPT_ROOT}/hack/boilerplate.go.txt" \
+    "${SCRIPT_ROOT}/pkg/apis"
