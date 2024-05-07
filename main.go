@@ -77,6 +77,14 @@ func main() {
 										},
 									},
 								},
+								"status": {
+									Type: "object",
+									Properties: map[string]v1.JSONSchemaProps{
+										"AvailableReplicas": {
+											Type: "integer",
+										},
+									},
+								},
 							},
 						},
 					},
@@ -125,7 +133,7 @@ func main() {
 			Name: "sabbir",
 		},
 		Spec: myv1.SabbirSpec{
-			Name:     "CustomSabbir",
+			Name:     "custom-sabbir",
 			Replicas: intptr(3),
 			Container: myv1.ContainerSpec{
 				Image: "sabbir70/api-bookserver",
@@ -139,21 +147,23 @@ func main() {
 	}
 	time.Sleep(2 * time.Second)
 	log.Println("Sabbir created")
-	signalChan = make(chan os.Signal, 1)
-	signal.Notify(signalChan, os.Interrupt)
-	<-signalChan
 
-	err = client.CrdV1().Sabbirs("default").Delete(ctx, "sabbir", metav1.DeleteOptions{})
-	if err != nil {
-		panic(err.Error())
-	}
-	err = crdClient.ApiextensionsV1().CustomResourceDefinitions().Delete(ctx, customCRD.Name, metav1.DeleteOptions{})
+	/*
+		signalChan = make(chan os.Signal, 1)
+		signal.Notify(signalChan, os.Interrupt)
+		<-signalChan
 
-	if err != nil {
-		panic(err.Error())
-	}
-	log.Println("cleaned up")
+		err = client.CrdV1().Sabbirs("default").Delete(ctx, "sabbir", metav1.DeleteOptions{})
+		if err != nil {
+			panic(err.Error())
+		}
+		err = crdClient.ApiextensionsV1().CustomResourceDefinitions().Delete(ctx, customCRD.Name, metav1.DeleteOptions{})
 
+		if err != nil {
+			panic(err.Error())
+		}
+		log.Println("cleaned up")
+	*/
 }
 
 func intptr(i int32) *int32 {
